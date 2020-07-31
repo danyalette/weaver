@@ -28,6 +28,7 @@ import qualified Weaver.Algorithm.PartitionProgressContext as PartitionProgressC
 import qualified Weaver.Algorithm.PartitionProgressSets as PartitionProgressSets
 import qualified Weaver.Algorithm.PartitionProgressTrace as PartitionProgressTrace
 import qualified Weaver.Algorithm.PartitionSets as PartitionSets
+import qualified Weaver.Algorithm.Symmetry as Symmetry
 import qualified Weaver.Algorithm.TotalOpt as TotalOpt
 import qualified Weaver.Algorithm.TotalProgressOpt as TotalProgressOpt
 import qualified Weaver.Algorithm.TotalProgressContext as TotalProgressContext
@@ -71,6 +72,7 @@ parseOptions = execParser (info optionsParser mempty)
         method  "total-progress-context"     = Just TotalProgressContext.algorithm
         method  "total-progress-context-opt" = Just TotalProgressContextOpt.algorithm
         method  "partition-progress-sets"    = Just PartitionProgressSets.algorithm
+        method  "symmetry"                   = Just Symmetry.algorithm
         method  _                            = Nothing
 
         backend "mathsat"             = Just mathSAT
