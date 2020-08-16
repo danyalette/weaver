@@ -1,0 +1,12 @@
+(var X Y Int)
+(var assert b c Bool)
+
+(set! assert true)
+
+(replicate ${n}
+  (declare (x Int)
+      (set! x 5)
+      (set! assert (and assert (= x 5)))
+     ))
+
+(assume (not assert))
