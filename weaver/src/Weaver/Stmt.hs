@@ -14,7 +14,7 @@
     ViewPatterns
   #-}
 
-module Weaver.Stmt (ThreadID (..), V, mkV, threadID, withThreadID, Stmt, isArtificial, artificial, assume, assign, atomic, indep, prove, isTriple, isIndep, straverse, straverse_) where
+module Weaver.Stmt (ThreadID (..), V, mkV, threadID, withThreadID, Stmt (..), isArtificial, artificial, assume, assign, atomic, indep, prove, isTriple, isIndep, straverse, straverse_) where
 
 import qualified Prelude as P
 import Prelude hiding (and, not, null, map)
@@ -29,8 +29,10 @@ import Data.Dependent.Map (DMap, empty, findWithDefault, foldrWithKey, fromList,
 import Data.Foldable (traverse_)
 import Data.Functor.Const (Const (..))
 import Data.GADT.Compare (GEq (..), GCompare (..), GOrdering (..), gcompare, geq)
+import Data.GADT.Show (GShow (..))
+import Data.GADT.Compare (GEq (..), GCompare (..), GOrdering (..), gcompare, geq)
 import Data.List.NonEmpty (NonEmpty)
-import Data.Text (Text)
+import Data.Text (Text, append, pack)
 import Data.Type.Equality ((:~:) (..))
 import Language.SMT.Expr (Expr, and, ebind, eq, emap, etraverse, etraverse_, not, var, imp)
 import Language.SMT.SExpr (SExpr (..), SExpressible (..))
@@ -46,12 +48,20 @@ data ThreadID
   | InPar Int ThreadID
   | InRep ThreadID
   | InDecl ThreadID
-  deriving (Eq, Ord)
+  | Symbolic Int
+  deriving (Eq, Ord, Show)
 
 data V a = V Text Natural ThreadID (Rank a)
 
+instance Show (V a) where 
+  show (V t n th _) = "V " ++ show t ++ show n ++ show th 
+  
+instance GShow V where gshowsPrec = showsPrec
+
 instance SExpressible (V a) where
-  toSExpr (V x _ _ _) = Symbol x
+  toSExpr (V x _ t _) = case t of 
+    Symbolic i -> Symbol (append x (pack ("_" ++ show i)))
+    _ -> Symbol x 
 
 mkV ∷ Text → ThreadID → Rank a → V a
 mkV x t s = V x 0 t s

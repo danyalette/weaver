@@ -18,6 +18,8 @@ library
                        Data.Automata.DFA,
                        Data.Automata.Graph,
                        Data.Automata.NFA,
+                       Data.Automata.FnDFA,
+                       Data.Automata.FnNFA,
                        Data.Automata.Regex
   build-depends:       base          ^>=4.13.0.0,
                        containers    ^>=0.6.2.1,

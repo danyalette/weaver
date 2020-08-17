@@ -93,64 +93,6 @@ time label action = do
   hFlush stdout
   return result
 
--- partitionProgressSetsCheck ∷ ∀c. Container c ([Tag], Stmt) ⇒ Map (Index c) (Set (Index c)) → DFA (Map (Index c)) → Cex c
--- partitionProgressSetsCheck deps (Unfold next (root ∷ q)) =
---   fromMaybe mempty (foldCut go₁ Nothing isJust (unfold go₂ (root, Set.empty))) where
---     go₁ ∷ (r → Maybe (Cex c)) → Lists' (Index c) r → Maybe (Cex c)
---     go₁ k (Lists' xs) = do
---       ys ← traverse (asum . map (traverse k)) xs
---       case ys of
---         [] → return Nil
---         _  → return (Cons (Map.fromListWith (<>) ys))
-
---     go₂ ∷ (q, Set (Index c)) → Lists' (Index c) (q, Set (Index c))
---     go₂ (q, s) =
---       case next q of
---         DFA.Edge _ True → Lists' []
---         DFA.Edge δ False → Lists' do
---           part ← map Set.fromList (subsequences (keys δ))
---           return do
---             (a, q') ← toKeyedList δ
---             guard (not (Set.member a s))
---             let orderₐ = if Set.member a part then Set.empty else part
---                 depsₐ = index deps a
---             return (a, (q', Set.difference (Set.union s orderₐ) depsₐ))
-
--- partitionSetsCheck ∷ ∀c. Container c ([Tag], Stmt) ⇒ Map (Index c) (Set (Index c)) → DFA (Map (Index c)) → Bool
--- partitionSetsCheck deps (Unfold next (root ∷ q)) =
---     not (foldCut go₁ False id (unfold go₂ (root, Set.empty))) where
---   go₁ ∷ (r → Bool) → Lists r → Bool
---   go₁ k (Lists xs) = all (any k) xs
-
---   go₂ ∷ (q, Set (Index c)) → Lists (q, Set (Index c))
---   go₂ (q, s) =
---     case next q of
---       DFA.Edge _ True → Lists []
---       DFA.Edge δ False → Lists do
---         part ← map Set.fromList (subsequences (keys δ))
---         return do
---           (a, q') ← toKeyedList δ
---           guard (not (Set.member a s))
---           let orderₐ = if Set.member a part then Set.empty else part
---               depsₐ = index deps a
---           return (q', Set.difference (Set.union s orderₐ) depsₐ)
-
--- totalOrderCheck ∷ ∀c. Container c ([Tag], Stmt) ⇒ Map (Index c) (Set (Index c)) → DFA (Map (Index c)) → Bool
--- totalOrderCheck deps = AC.isEmpty . foldCut go AC.empty (not . AC.isEmpty) where
---   go ∷ (r → Antichain (Index c)) → DFA.Edge (Map (Index c)) r → Antichain (Index c)
---   go _ (DFA.Edge _ True) = AC.universe
---   go k (DFA.Edge δ False) = AC.intersections do
---     order ← permutations (keys δ)
---     return . AC.unions $ do
---       (a, q) ← toKeyedList δ
---       pₘₐₓ ← AC.toList (k q)
---       let orderₐ = Set.fromList (dropWhile (/= a) order)
---           depsₐ = index deps a
---       return $
---         if Set.isSubsetOf (Set.difference orderₐ depsₐ) pₘₐₓ
---         then AC.singleton (Set.delete a (Set.unions [pₘₐₓ, orderₐ, depsₐ]))
---         else AC.empty
-
 verifyProgram ∷ (?config ∷ Config) ⇒ Bound → Natural → Solver V → Algorithm → Program → IO (Maybe [Stmt])
 verifyProgram bound iters solver (Algorithm algorithm) (Program asserts (regex ∷ Regex (Index c))) = do
   start₁ ← getTime Monotonic
