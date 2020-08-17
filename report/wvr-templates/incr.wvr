@@ -1,0 +1,11 @@
+(var X Int)
+
+(set! X 0)
+
+(replicate ${n}
+  (declare (x Int)
+      (set! x 1)
+      (set! X x)
+     ))
+
+(assume (not (<= X ${n})))

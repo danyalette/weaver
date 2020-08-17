@@ -1,5 +1,5 @@
-(var X Y Int)
-(var assert b c Bool)
+(var X Int)
+(var assert Bool)
 
 (set! assert true)
 
